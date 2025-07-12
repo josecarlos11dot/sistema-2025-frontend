@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
+  <title>Registro de Lavado</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+
+    <!-- 🎛 Botón para mostrar/ocultar filtros -->
+    
+    <div id="overlay" class="overlay"></div>
+    <div id="overlayRegistro" class="overlay"></div>
+    <div class="layout-contenido">
+
+      <!-- 👇 Panel lateral de filtros 👇 -->
+      
+      <aside id="panelFiltros" class="panel-filtros">
+        <button id="btnCerrarFiltros" class="btn-cerrar-filtros">✕</button>
+        <h3>Filtros</h3>
+        <label>Desde:<br><input type="date" id="filtroFechaInicio"></label><br><br>
+        <label>Hasta:<br><input type="date" id="filtroFechaFin"></label><br><br>
+        <label>Placa:<br><input type="text" id="filtroPlaca" placeholder="Ej. ABC123"></label><br><br>
+        <label>Lavador:<br><input type="text" id="filtroLavador" placeholder="Ej. Ana"></label><br><br>
+        <label>Marca:<br><input type="text" id="filtroMarca" placeholder="Ej. Toyota"></label><br><br>
+        <label>Modelo:<br><input type="text" id="filtroModelo" placeholder="Ej. Yaris"></label><br><br>
+        <label>Color:<br><input type="text" id="filtroColor" placeholder="Ej. Blanco"></label><br><br>
+        <label>Precio mínimo:<br><input type="number" id="filtroPrecioMin" min="0"></label><br><br>
+        <label>Precio máximo:<br><input type="number" id="filtroPrecioMax" min="0"></label><br><br>
+        <button id="btnAplicarFiltros">🔍 Aplicar filtros</button>
+        <br><br>
+        <button id="btnLimpiarFiltros" type="button">🔄 Limpiar filtros</button>
+        <p id="resultadoFiltros" style="font-weight: bold; margin-top: 10px;"></p>
+      </aside>
+
+      <!-- 👇 Contenido principal 👇 -->
+      <div class="contenido-principal">
+
+        <header class="header">
+          <h1>Registro de Lavado</h1>
+          <div class="header__botones">
+          <button id="btnToggleFiltros" class="btn-primario">🎛 Mostrar filtros</button>
+          <button id="btnNuevo" class="btn-primario">+ Registro</button>
+          </div>
+        </header>
+
+        <section id="formulario" class="formulario-panel">
+          <button id="btnCerrarFormulario" class="btn-cerrar-formulario">✕</button>
+          <h2>Nuevo Lavado</h2>
+          <form id="registroForm">
+            <!-- Placa -->
+            <div class="grupo">
+              <label>Placa</label>
+              <input type="text" name="placa" id="inputPlaca" autocomplete="off" required />
+              <ul id="sugerenciasPlaca" class="sugerencias"></ul>
+            </div>
+        
+            <!-- Marca -->
+            <div class="grupo marca">
+              <label>Marca</label>
+              <div id="marcas" class="botonera"></div>
+            </div>
+            <button id="btnAgregarMarca" class="btn-agregar" type="button">+ Agregar marca</button>
+            <button id="btnEditarMarca" class="btn-agregar" type="button">Editar marcas</button>
+        
+            <!-- Modelo -->
+            <div class="grupo modelo">
+              <label>Modelo</label>
+              <div id="modelos" class="botonera"></div>
+            </div>
+            <button id="btnAgregarModelo" class="btn-agregar" disabled type="button">+ Agregar modelo</button>
+            <button id="btnEditarModelo" class="btn-agregar" disabled type="button">Editar modelos</button>
+        
+            <!-- Campos ocultos para guardar selección -->
+            <input type="hidden" name="marca" id="inputMarca" required>
+            <input type="hidden" name="modelo" id="inputModelo" required>
+        
+            <!-- Color -->
+            <div class="grupo color">
+              <label>Color</label>
+              <div id="colores" class="botonera"></div>
+            </div>
+            <button id="btnAgregarColor" class="btn-agregar" type="button">+ Agregar color</button>
+            <button id="btnEditarColores" class="btn-agregar" type="button">Editar colores</button>
+            <input type="hidden" name="color" id="inputColor" required>
+        
+            <!-- Precio -->
+            <div class="grupo precio">
+              <label>Precio</label>
+              <div id="precios" class="botonera"></div>
+            </div>
+            <button id="btnAgregarPrecio" class="btn-agregar" type="button">+ Agregar precio</button>
+            <button id="btnEditarPrecios" class="btn-agregar" type="button">Editar precios</button>
+            <input type="hidden" name="precio" id="inputPrecio" required>
+        
+            <!-- Lavador -->
+            <div class="grupo lavador">
+              <label>Lavador</label>
+              <div id="lavadores" class="botonera"></div>
+            </div>
+            <button id="btnAgregarLavador" class="btn-agregar" type="button">+ Agregar lavador</button>
+            <button id="btnEditarLavadores" class="btn-agregar" type="button">Editar lavadores</button>
+            <input type="hidden" name="lavador" id="inputLavador" required>
+        
+            <!-- Botón guardar -->
+            <button type="submit" class="btn-secundario">Guardar</button>
+          </form>
+        </section>
+        
+
+        <section id="tablaRegistros">
+          <h2>Lavados del Día</h2>
+          <div class="tabla-contenedor">
+            <table>
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Placa</th>
+                  <th>Marca</th>
+                  <th>Modelo</th>
+                  <th>Color</th>
+                  <th>Precio</th>
+                  <th>Lavador</th>
+                  <th>Fecha y hora</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="registroBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </div><!-- /.contenido-principal -->
+    </div><!-- /.layout-contenido -->
+  </div><!-- /.container -->
+
+  <script src="script.js"></script>
+</body>
+</html>

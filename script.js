@@ -40,7 +40,7 @@ const overlay = document.getElementById('overlay');
 
 // === BASES Y LOCALSTORAGE ===
 let basePlacas = [];
-let registrosGuardados = JSON.parse(localStorage.getItem('registros')) || [];
+let registrosGuardados = []; // ahora los datos se cargan desde el servidor
 let filaEditando = null;
 
 let opciones = JSON.parse(localStorage.getItem('opciones')) || {
@@ -84,31 +84,37 @@ const esDeHoy = (fechaStr) => {
     fecha.getDate() === hoy.getDate()
   );
 };
-// === GUARDAR Y EDITAR REGISTROS ===
+// === GUARDAR REGISTRO EN BACKEND ===
 registroForm.addEventListener('submit', (e) => {
   e.preventDefault();
+
   const nuevoRegistro = {
     placa: inputPlaca.value.trim().toUpperCase(),
     marca: inputMarca.value,
     modelo: inputModelo.value,
     color: inputColor.value,
     precio: inputPrecio.value,
-    lavador: inputLavador.value,
-    fechaHora: new Date().toLocaleString('sv-SE'), // formato YYYY-MM-DD HH:mm:ss
-
+    lavador: inputLavador.value
+    // no incluyas "fecha", el backend ya lo agrega automáticamente
   };
 
-  if (filaEditando !== null) {
-    registrosGuardados[filaEditando] = nuevoRegistro;
-    filaEditando = null;
-  } else {
-    registrosGuardados.push(nuevoRegistro);
-  }
-
-  guardarLocal('registros', registrosGuardados);
-  mostrarRegistros(registrosGuardados.filter(r => esDeHoy(r.fechaHora)));
-  cerrarFormulario();
+  fetch('https://sistema-2025-backend.onrender.com/api/registros', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(nuevoRegistro)
+  })
+  .then(res => res.json())
+  .then(() => {
+    mostrarRegistrosDelServidor();
+    cerrarFormulario();
+  })
+  .catch(err => {
+    console.error('Error al guardar en backend:', err);
+  });
 });
+
 
 // === RENDERIZAR OPCIONES COMO BOTONES ===
 const renderBotones = (arr, contenedor, inputHidden, prefijo = '') => {
@@ -321,80 +327,98 @@ const mostrarRegistros = (datos) => {
       <td><button class="btn-editar">Editar</button><button class="btn-eliminar">Eliminar</button></td>
     `;
 
-    fila.dataset.index = indexReal; // ✅ índice real basado en referencia del objeto
+    fila.dataset.id = r._id; 
     registroBody.appendChild(fila);
   });
 };
 
-
-registroBody.addEventListener('click', e => {
+registroBody.addEventListener('click', async (e) => {
   const fila = e.target.closest('tr');
-  const index = fila.dataset.index;
-  const registro = registrosGuardados[index];
+  const id = fila.dataset.id;
 
   if (e.target.classList.contains('btn-editar')) {
-    inputPlaca.value = registro.placa;
-    inputMarca.value = registro.marca;
-    inputModelo.value = registro.modelo;
-    inputColor.value = registro.color;
-    inputPrecio.value = registro.precio;
-    inputLavador.value = registro.lavador;
-    activarBoton(marcasDiv, registro.marca);
-    renderBotones(opciones[registro.marca], modelosDiv, inputModelo);
-    activarBoton(modelosDiv, registro.modelo);
-    activarBoton(coloresDiv, registro.color);
-    activarBoton(preciosDiv, `$${registro.precio}`);
-    activarBoton(lavadoresDiv, registro.lavador);
-    filaEditando = index;
-    abrirFormulario();
+    try {
+      const res = await fetch(`https://sistema-2025-backend.onrender.com/api/registros`);
+      const registros = await res.json();
+      const registro = registros.find(r => r._id === id);
+
+      inputPlaca.value = registro.placa;
+      inputMarca.value = registro.marca;
+      inputModelo.value = registro.modelo;
+      inputColor.value = registro.color;
+      inputPrecio.value = registro.precio;
+      inputLavador.value = registro.lavador;
+
+      activarBoton(marcasDiv, registro.marca);
+      renderBotones(opciones[registro.marca], modelosDiv, inputModelo);
+      activarBoton(modelosDiv, registro.modelo);
+      activarBoton(coloresDiv, registro.color);
+      activarBoton(preciosDiv, `$${registro.precio}`);
+      activarBoton(lavadoresDiv, registro.lavador);
+
+      filaEditando = id;
+      abrirFormulario();
+    } catch (error) {
+      console.error('Error al cargar registro para editar:', error);
+    }
   }
 
   if (e.target.classList.contains('btn-eliminar')) {
     if (confirm('¿Eliminar este registro?')) {
-      registrosGuardados.splice(index, 1);
-      guardarLocal('registros', registrosGuardados);
-      mostrarRegistros(registrosGuardados.filter(r => esDeHoy(r.fechaHora)));
+      try {
+        await fetch(`https://sistema-2025-backend.onrender.com/api/registros/${id}`, {
+          method: 'DELETE'
+        });
+        mostrarRegistrosDelServidor();
+      } catch (error) {
+        console.error('Error al eliminar registro:', error);
+      }
     }
   }
 });
 
+
+
 // === APLICAR FILTROS ===
 btnAplicarFiltros.addEventListener('click', () => {
-  let registros = JSON.parse(localStorage.getItem('registros')) || [];
+  fetch('https://sistema-2025-backend.onrender.com/api/registros')
+    .then(res => res.json())
+    .then(registros => {
+      const placa = filtroPlaca.value.trim().toLowerCase();
+      const desde = filtroFechaInicio.value ? new Date(filtroFechaInicio.value) : null;
+      const hasta = filtroFechaFin.value ? new Date(filtroFechaFin.value) : null;
+      if (hasta) hasta.setHours(23, 59, 59, 999);
 
-  const placa = filtroPlaca.value.trim().toLowerCase();
-  const desde = filtroFechaInicio.value ? new Date(filtroFechaInicio.value) : null;
-  const hasta = filtroFechaFin.value ? new Date(filtroFechaFin.value) : null;
+      const lavador = filtroLavador.value.trim().toLowerCase();
+      const marca = filtroMarca.value.trim().toLowerCase();
+      const modelo = filtroModelo.value.trim().toLowerCase();
+      const color = filtroColor.value.trim().toLowerCase();
+      const precioMin = filtroPrecioMin.value ? parseFloat(filtroPrecioMin.value) : null;
+      const precioMax = filtroPrecioMax.value ? parseFloat(filtroPrecioMax.value) : null;
 
-  if (hasta) {
-    hasta.setHours(23, 59, 59, 999); // asegura fin del día local
-  }
+      const filtrados = registros.filter(reg => {
+        const fecha = new Date(reg.fecha);
+        return (
+          (!placa || reg.placa.toLowerCase().includes(placa)) &&
+          (!desde || fecha >= desde) &&
+          (!hasta || fecha <= hasta) &&
+          (!lavador || reg.lavador.toLowerCase().includes(lavador)) &&
+          (!marca || reg.marca.toLowerCase().includes(marca)) &&
+          (!modelo || reg.modelo.toLowerCase().includes(modelo)) &&
+          (!color || reg.color.toLowerCase().includes(color)) &&
+          (!precioMin || parseFloat(reg.precio) >= precioMin) &&
+          (!precioMax || parseFloat(reg.precio) <= precioMax)
+        );
+      });
 
-  const lavador = filtroLavador.value.trim().toLowerCase();
-  const marca = filtroMarca.value.trim().toLowerCase();
-  const modelo = filtroModelo.value.trim().toLowerCase();
-  const color = filtroColor.value.trim().toLowerCase();
-  const precioMin = filtroPrecioMin.value ? parseFloat(filtroPrecioMin.value) : null;
-  const precioMax = filtroPrecioMax.value ? parseFloat(filtroPrecioMax.value) : null;
-
-  const filtrados = registros.filter(reg => {
-    const fecha = new Date(reg.fechaHora);
-    return (
-      (!placa || reg.placa.toLowerCase().includes(placa)) &&
-      (!desde || fecha >= desde) &&
-      (!hasta || fecha <= hasta) &&
-      (!lavador || reg.lavador.toLowerCase().includes(lavador)) &&
-      (!marca || reg.marca.toLowerCase().includes(marca)) &&
-      (!modelo || reg.modelo.toLowerCase().includes(modelo)) &&
-      (!color || reg.color.toLowerCase().includes(color)) &&
-      (!precioMin || parseFloat(reg.precio) >= precioMin) &&
-      (!precioMax || parseFloat(reg.precio) <= precioMax)
-    );
-  });
-
-  resultadoFiltros.textContent = `${filtrados.length} resultado(s)`;
-  mostrarRegistros(filtrados);
+      resultadoFiltros.textContent = `${filtrados.length} resultado(s)`;
+      mostrarRegistros(filtrados);
+    })
+    .catch(err => {
+      console.error('Error al aplicar filtros:', err);
+    });
 });
+
 
 // === AUTOCOMPLETAR POR PLACA ===
 inputPlaca.addEventListener('change', () => {
@@ -479,8 +503,22 @@ overlay.addEventListener('click', () => {
   overlay.classList.remove('activo');
 });
 
+
+// === CARGAR REGISTROS DESDE EL BACKEND Y MOSTRAR SOLO LOS DE HOY ===
+function mostrarRegistrosDelServidor() {
+  fetch('https://sistema-2025-backend.onrender.com/api/registros')
+    .then(res => res.json())
+    .then(datos => {
+      const soloHoy = datos.filter(r => esDeHoy(r.fecha));
+      mostrarRegistros(soloHoy);
+    })
+    .catch(err => console.error('Error al cargar registros:', err));
+}
+
+
+
 // ✅ Mostrar solo registros del día al cargar la app
-mostrarRegistros(registrosGuardados.filter(r => esDeHoy(r.fechaHora)));
+mostrarRegistrosDelServidor();
 
 // ✅ Limpiar filtros y volver a mostrar solo los de hoy
 document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
@@ -496,7 +534,53 @@ document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
 
   resultadoFiltros.textContent = '';
 
-  mostrarRegistros(registrosGuardados.filter(r => esDeHoy(r.fechaHora)));
+  mostrarRegistrosDelServidor();
 });
 
 });
+
+// === MANEJAR BOTONES EDITAR Y ELIMINAR ===
+registroBody.addEventListener('click', async (e) => {
+  const fila = e.target.closest('tr');
+  const id = fila.dataset.id;
+
+  if (e.target.classList.contains('btn-editar')) {
+    // Obtener datos de la fila
+    const celdas = fila.querySelectorAll('td');
+    inputPlaca.value = celdas[1].textContent;
+    inputMarca.value = celdas[2].textContent;
+    inputModelo.value = celdas[3].textContent;
+    inputColor.value = celdas[4].textContent;
+    inputPrecio.value = celdas[5].textContent.replace('$', '');
+    inputLavador.value = celdas[6].textContent;
+
+    activarBoton(marcasDiv, inputMarca.value);
+    renderBotones(opciones[inputMarca.value], modelosDiv, inputModelo);
+    activarBoton(modelosDiv, inputModelo.value);
+    activarBoton(coloresDiv, inputColor.value);
+    activarBoton(preciosDiv, `$${inputPrecio.value}`);
+    activarBoton(lavadoresDiv, inputLavador.value);
+
+    filaEditando = id;
+    abrirFormulario();
+  }
+
+  if (e.target.classList.contains('btn-eliminar')) {
+    if (confirm('¿Eliminar este registro?')) {
+      try {
+        const res = await fetch(`https://sistema-2025-backend.onrender.com/api/registros/${id}`, {
+          method: 'DELETE'
+        });
+        if (res.ok) {
+          mostrarRegistrosDelServidor();
+        } else {
+          alert('No se pudo eliminar el registro.');
+        }
+      } catch (err) {
+        console.error('Error al eliminar:', err);
+        alert('Error al eliminar el registro.');
+      }
+    }
+  }
+});
+

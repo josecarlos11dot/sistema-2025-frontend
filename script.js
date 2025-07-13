@@ -37,6 +37,12 @@ const btnToggleFiltros = document.getElementById('btnToggleFiltros');
 const btnCerrarFiltros = document.getElementById('btnCerrarFiltros');
 const panelFiltros = document.getElementById('panelFiltros');
 const overlay = document.getElementById('overlay');
+// === cerrar formulario ===
+btnCerrarFormulario.addEventListener('click', () => {
+  formulario.classList.remove('activo');
+  overlayRegistro.classList.remove('activo');
+});
+
 
 // === BASES Y LOCALSTORAGE ===
 let basePlacas = [];

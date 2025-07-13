@@ -95,11 +95,17 @@ registroForm.addEventListener('submit', (e) => {
     color: inputColor.value,
     precio: inputPrecio.value,
     lavador: inputLavador.value
-    // no incluyas "fecha", el backend ya lo agrega automáticamente
   };
 
-  fetch('https://sistema-2025-backend.onrender.com/api/registros', {
-    method: 'POST',
+  // Si estás editando, usa PUT y la URL con ID
+  const url = filaEditando
+    ? `https://sistema-2025-backend.onrender.com/api/registros/${filaEditando}`
+    : 'https://sistema-2025-backend.onrender.com/api/registros';
+
+  const metodo = filaEditando ? 'PUT' : 'POST';
+
+  fetch(url, {
+    method: metodo,
     headers: {
       'Content-Type': 'application/json'
     },
@@ -114,6 +120,7 @@ registroForm.addEventListener('submit', (e) => {
     console.error('Error al guardar en backend:', err);
   });
 });
+
 
 
 // === RENDERIZAR OPCIONES COMO BOTONES ===

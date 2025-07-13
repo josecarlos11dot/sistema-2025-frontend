@@ -41,6 +41,7 @@ const overlay = document.getElementById('overlay');
 btnCerrarFormulario.addEventListener('click', () => {
   formulario.classList.remove('activo');
   overlayRegistro.classList.remove('activo');
+  btnNuevo.textContent = '+ Registro'; // ✅ Esto actualiza el botón de nuevo
 });
 
 

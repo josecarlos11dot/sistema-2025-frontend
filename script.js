@@ -357,7 +357,11 @@ registroBody.addEventListener('click', async (e) => {
       inputLavador.value = registro.lavador;
 
       activarBoton(marcasDiv, registro.marca);
+      if (!opciones[registro.marca]) {
+        opciones[registro.marca] = [];
+      }
       renderBotones(opciones[registro.marca], modelosDiv, inputModelo);
+      
       activarBoton(modelosDiv, registro.modelo);
       activarBoton(coloresDiv, registro.color);
       activarBoton(preciosDiv, `$${registro.precio}`);

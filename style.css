@@ -351,85 +351,79 @@ th {
   text-transform: uppercase;
 }
 
-/* --- Corrección final para botones activos por grupo --- */
+/* --- Botón activo por grupo --- */
 .grupo .botonera button.activo {
   background-color: #4caf51 !important;
   color: black;
   border-color: #00fa21;
   font-weight: bold;
 }
-/* === OPTIMIZACIÓN VISUAL Y RESPONSIVA FINAL === */
 
-/* Ajustar scroll y altura del panel lateral derecho */
+/* --- Estilo general del cuerpo --- */
 body {
+  margin: 0;
+  padding: 0;
   height: 100vh;
   overflow: hidden;
 }
 
-.formulario-panel {
+/* --- Layout principal --- */
+.layout-contenido {
+  display: flex;
+  flex-direction: row;
+  max-width: 1280px;
+  margin: 0 auto;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* --- Panel de formulario --- */
+#formulario.formulario-panel.activo {
   height: 100vh;
   max-height: 100vh;
   overflow-y: auto;
-  display: flex;
-  flex-direction: column;
   padding: 20px;
   box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  max-width: 360px; /* Límite lateral derecho */
+  min-width: 300px;
 }
 
-/* Agrupaciones internas con buen comportamiento flexible */
-.formulario-panel .grupo,
-.formulario-panel .grupo-opciones {
+/* Grupos del formulario */
+#formulario .grupo,
+#formulario .grupo-opciones {
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   width: 100%;
 }
 
-/* Botones dentro de las opciones */
-.formulario-panel .grupo-opciones button {
-  padding: 8px 12px;
-  font-size: 15px;
-  min-width: 80px;
+/* Botones dentro del grupo */
+.botonera button {
+  padding: 8px 14px;
+  border: 1px solid #bdc3c7;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
 }
 
-/* Texto en etiquetas */
-.formulario-panel .grupo label {
-  font-size: 15px;
-  margin-bottom: 5px;
-  display: block;
-}
-
-/* Ajuste visual para tablets y móviles medianos */
+/* --- Responsivo para pantallas menores a 768px --- */
 @media (max-width: 768px) {
-  .formulario-panel {
-    max-width: 100vw;
-    padding: 16px;
+  .layout-contenido {
+    flex-direction: column;
+    overflow-y: auto;
   }
 
-  .formulario-panel button,
-  .formulario-panel .grupo-opciones button {
+  #formulario.formulario-panel.activo {
+    max-width: 100%;
+    width: 100%;
+    padding: 12px;
     font-size: 14px;
+  }
+
+  #formulario button {
+    font-size: 13px;
     padding: 6px 10px;
   }
 }
 
-/* Ajuste específico para móviles pequeños (hasta 480px y 320px) */
-@media (max-width: 480px) {
-  .formulario-panel {
-    padding: 12px;
-  }
-
-  .formulario-panel .grupo-opciones button {
-    flex: 1 1 100%;
-    font-size: 13px;
-    min-width: unset;
-  }
-
-  .formulario-panel button {
-    font-size: 13px;
-    padding: 6px;
-  }
-
-  .formulario-panel .grupo label {
-    font-size: 13px;
-  }
-}

@@ -546,10 +546,7 @@ document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
 
 });
 
-// === MANEJAR BOTONES EDITAR Y ELIMINAR ===
-registroBody.addEventListener('click', async (e) => {
-  const fila = e.target.closest('tr');
-  const id = fila.dataset.id;
+
 
   if (e.target.classList.contains('btn-editar')) {
     // Obtener datos de la fila

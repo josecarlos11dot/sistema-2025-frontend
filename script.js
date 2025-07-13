@@ -323,7 +323,14 @@ const mostrarRegistros = (datos) => {
       <td>${r.color}</td>
       <td>$${r.precio}</td>
       <td>${r.lavador}</td>
-      <td>${new Date(r.fechaHora).toLocaleString()}</td>
+      <td>${new Date(r.fecha).toLocaleString('es-MX', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+      })} hrs</td>
       <td><button class="btn-editar">Editar</button><button class="btn-eliminar">Eliminar</button></td>
     `;
 

@@ -358,3 +358,68 @@ th {
   border-color: #00fa21;
   font-weight: bold;
 }
+
+/* === Ajustes generales para evitar scroll horizontal === */
+body {
+  overflow-x: hidden;
+}
+
+/* Reducir ligeramente el tamaño del panel lateral */
+.formulario-panel {
+  width: 300px; /* antes 360px */
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+/* Ajuste de botones principales */
+.btn-primario,
+.btn-secundario {
+  padding: 8px 16px; /* antes 10px 20px */
+  font-size: 14px;   /* antes 16px */
+}
+
+/* Botones de opciones */
+.botonera button {
+  padding: 6px 10px; /* antes 8px 14px */
+  font-size: 13px;   /* antes 14px */
+}
+
+/* Botón de agregar nuevo */
+.btn-agregar {
+  padding: 5px 10px; /* antes 6px 12px */
+  font-size: 13px;
+}
+
+/* === Estilo responsivo para móviles === */
+@media (max-width: 768px) {
+  .layout-contenido {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .formulario-panel {
+    width: 100%;
+  }
+
+  .botonera button,
+  .btn-agregar,
+  .btn-primario,
+  .btn-secundario {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  #panelFiltros button,
+  #panelFiltros input {
+    font-size: 13px;
+  }
+
+  table {
+    font-size: 13px;
+  }
+
+  th, td {
+    padding: 6px;
+  }
+}

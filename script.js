@@ -602,6 +602,51 @@ document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
 
   mostrarRegistrosDelServidor();
 });
+<script>
+  const btnOCR = document.getElementById('btnOCR');
+  const inputFotoOCR = document.getElementById('inputFotoOCR');
+  const inputPlaca = document.getElementById('inputPlaca');
+  const estadoOCR = document.getElementById('estadoOCR');
+
+  btnOCR.addEventListener('click', () => {
+    inputFotoOCR.click(); // Abrir cámara
+  });
+
+  inputFotoOCR.addEventListener('change', async () => {
+    if (!inputFotoOCR.files.length) return;
+
+    estadoOCR.textContent = 'Procesando imagen...';
+
+    const formData = new FormData();
+    formData.append("apikey", "K82376714188957"); // Tu API Key válida
+    formData.append("language", "spa");
+    formData.append("isOverlayRequired", false);
+    formData.append("file", inputFotoOCR.files[0]);
+
+    try {
+      const res = await fetch("https://api.ocr.space/parse/image", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+      const texto = data?.ParsedResults?.[0]?.ParsedText || '';
+      console.log("Texto OCR detectado:", texto);
+
+      const match = texto.match(/[A-Z0-9]{6,8}/i); // Detecta placas tipo GF9235C
+      if (match) {
+        inputPlaca.value = match[0].toUpperCase();
+        estadoOCR.textContent = 'Placa detectada correctamente.';
+      } else {
+        estadoOCR.textContent = 'No se encontró una placa válida.';
+      }
+    } catch (err) {
+      console.error(err);
+      estadoOCR.textContent = 'Error al procesar imagen.';
+    }
+  });
+</script>
+
 
 });
 

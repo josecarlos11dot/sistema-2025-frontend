@@ -370,6 +370,15 @@ th {
     padding: 14px;
   }
 
+  /* Espacio extra debajo del formulario para que el botón no quede tapado */
+  .formulario-panel form {
+    padding-bottom: 60px;
+  }
+
+  .formulario-panel button[type="submit"] {
+    margin-bottom: 20px;
+  }
+
   /* Botonera más separada y en columna */
   .botonera {
     flex-direction: column;

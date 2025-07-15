@@ -529,9 +529,7 @@ overlay.addEventListener('click', () => {
 });
 
 
-// === FUNCIÓN PARA ACTUALIZAR EL RESUMEN DEL DÍA (VERSIÓN MÓVIL) ===
-function actualizarResumen() {
-  const registros = obtenerRegistrosDelDia(); // Esta función ya la tienes en tu sistema
+function actualizarResumen(registros) {
   const resumen = document.getElementById('resumenDia');
 
   if (!resumen || registros.length === 0) {
@@ -570,17 +568,17 @@ function actualizarResumen() {
     </table>
   `;
 }
-// === CARGAR REGISTROS DESDE EL BACKEND Y MOSTRAR SOLO LOS DE HOY ===
 function mostrarRegistrosDelServidor() {
   fetch('https://sistema-2025-backend.onrender.com/api/registros')
     .then(res => res.json())
     .then(datos => {
       const soloHoy = datos.filter(r => esDeHoy(r.fecha));
       mostrarRegistros(soloHoy);
-      actualizarResumen(); // ✅ Aquí se actualiza también el resumen
+      actualizarResumen(soloHoy); // ✅ Aquí pasas los datos directamente
     })
     .catch(err => console.error('Error al cargar registros:', err));
 }
+
 
 
 

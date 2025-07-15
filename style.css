@@ -391,3 +391,45 @@ th {
     padding: 0 10px;
   }
 }
+.resumen-dia {
+  display: none;
+  background-color: #ffffff;
+  padding: 10px;
+  margin: 12px 0;
+  border-radius: 10px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.1);
+  font-size: 14px;
+  color: #333;
+  overflow-x: auto;
+}
+
+.resumen-dia table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.resumen-dia th,
+.resumen-dia td {
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+  white-space: nowrap;
+}
+
+.resumen-dia th {
+  background-color: #f0f0f0;
+  font-weight: bold;
+}
+
+@media (max-width: 768px) {
+  .resumen-dia {
+    display: block;
+  }
+}
+/* === OCULTAR RESUMEN EN ESCRITORIO === */
+@media (min-width: 769px) {
+  #resumenDia {
+    display: none;
+  }
+}
+

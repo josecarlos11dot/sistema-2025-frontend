@@ -529,6 +529,47 @@ overlay.addEventListener('click', () => {
 });
 
 
+// === FUNCIÓN PARA ACTUALIZAR EL RESUMEN DEL DÍA (VERSIÓN MÓVIL) ===
+function actualizarResumen() {
+  const registros = obtenerRegistrosDelDia(); // Esta función ya la tienes en tu sistema
+  const resumen = document.getElementById('resumenDia');
+
+  if (!resumen || registros.length === 0) {
+    resumen.innerHTML = '';
+    return;
+  }
+
+  const filas = registros.map(r => {
+    const hora = new Date(r.fecha).toLocaleTimeString('es-MX', {
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+    return `
+      <tr>
+        <td>${r.marca} ${r.modelo}</td>
+        <td>${r.color}</td>
+        <td>$${r.precio}</td>
+        <td>${hora}</td>
+      </tr>
+    `;
+  }).join('');
+
+  resumen.innerHTML = `
+    <table>
+      <thead>
+        <tr>
+          <th>Auto</th>
+          <th>Color</th>
+          <th>Precio</th>
+          <th>Hora</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${filas}
+      </tbody>
+    </table>
+  `;
+}
 // === CARGAR REGISTROS DESDE EL BACKEND Y MOSTRAR SOLO LOS DE HOY ===
 function mostrarRegistrosDelServidor() {
   fetch('https://sistema-2025-backend.onrender.com/api/registros')
@@ -536,9 +577,11 @@ function mostrarRegistrosDelServidor() {
     .then(datos => {
       const soloHoy = datos.filter(r => esDeHoy(r.fecha));
       mostrarRegistros(soloHoy);
+      actualizarResumen(); // ✅ Aquí se actualiza también el resumen
     })
     .catch(err => console.error('Error al cargar registros:', err));
 }
+
 
 
 

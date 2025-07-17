@@ -627,6 +627,12 @@ function seleccionarBoton(grupo, valor) {
   const inputOculto = document.getElementById('input' + capitalizar(grupo));
   const valorNormalizado = valor.toLowerCase().trim();
 
+  // Validar si el contenedor existe
+  if (!contenedor || !inputOculto) {
+    console.warn(`No se encontró el grupo: ${grupo}`);
+    return;
+  }
+
   let boton = [...contenedor.querySelectorAll('button')].find(
     b => b.textContent.toLowerCase().trim() === valorNormalizado
   );
@@ -637,13 +643,12 @@ function seleccionarBoton(grupo, valor) {
     boton.classList.add('btn');
     boton.textContent = valor;
 
-    // Estilo por tipo (color opcional)
+    // Estilo especial (opcional)
     if (grupo === 'color') boton.style.backgroundColor = valor;
     if (grupo === 'modelo') boton.classList.add('modelo-dinamico');
 
     contenedor.appendChild(boton);
 
-    // Asignar evento por si se quiere cambiar después
     boton.addEventListener('click', () => {
       [...contenedor.querySelectorAll('button')].forEach(b => b.classList.remove('activo'));
       boton.classList.add('activo');
@@ -656,6 +661,7 @@ function seleccionarBoton(grupo, valor) {
   boton.classList.add('activo');
   inputOculto.value = valor;
 }
+
 
 function capitalizar(texto) {
   return texto.charAt(0).toUpperCase() + texto.slice(1);

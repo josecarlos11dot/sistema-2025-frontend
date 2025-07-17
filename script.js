@@ -514,10 +514,14 @@ inputPlaca.addEventListener('change', () => {
     .then(data => {
       const encontrado = data.find(auto => auto.placa === placa);
       if (encontrado) {
-        seleccionarBoton('marca', encontrado.marca);
-        seleccionarBoton('modelo', encontrado.modelo);
-        seleccionarBoton('color', encontrado.color);
         console.log('Asociación encontrada:', encontrado);
+
+        // Esperar a que todos los elementos del DOM estén listos
+        setTimeout(() => {
+          seleccionarBoton('marca',  encontrado.marca);
+          seleccionarBoton('modelo', encontrado.modelo);
+          seleccionarBoton('color',  encontrado.color);
+        }, 0);
       } else {
         console.log('Placa no encontrada en base');
       }

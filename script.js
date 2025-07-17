@@ -641,31 +641,32 @@ function seleccionarBoton(grupo, valor) {
   let boton = [...contenedor.querySelectorAll('button')].find(
     b => b.textContent.toLowerCase().trim() === valorNormalizado
   );
-
-  if (!boton) {s
+  if (!boton) {
     // Crear botón si no existe
     boton = document.createElement('button');
     boton.classList.add('btn');
     boton.textContent = valor;
-
+  
     // Estilo especial (opcional)
     if (grupo === 'color') boton.style.backgroundColor = valor;
     if (grupo === 'modelo') boton.classList.add('modelo-dinamico');
-
+  
     contenedor.appendChild(boton);
-
+  
+    // ✅ Este bloque se queda dentro del if
     boton.addEventListener('click', () => {
       [...contenedor.querySelectorAll('button')].forEach(b => b.classList.remove('activo'));
       boton.classList.add('activo');
       inputOculto.value = valor;
     });
   }
+  
 
-  // Activar botón
-  [...contenedor.querySelectorAll('button')].forEach(b => b.classList.remove('activo'));
-  boton.classList.add('activo');
-  inputOculto.value = valor;
-}
+ // Activar botón (nuevo o existente)
+[...contenedor.querySelectorAll('button')].forEach(b => b.classList.remove('activo'));
+boton.classList.add('activo');
+inputOculto.value = valor;
+
 
 
 function capitalizar(texto) {

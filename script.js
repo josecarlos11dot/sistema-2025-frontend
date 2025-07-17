@@ -623,15 +623,44 @@ document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
   mostrarRegistrosDelServidor();
 });
 function seleccionarBoton(grupo, valor) {
-  const botones = document.querySelectorAll(`.${grupo} button`);
-  botones.forEach(boton => {
-    if (boton.textContent.trim().toUpperCase() === valor.toUpperCase()) {
+  const contenedor = document.getElementById(grupo + 's');
+  const inputOculto = document.getElementById('input' + capitalizar(grupo));
+  const valorNormalizado = valor.toLowerCase().trim();
+
+  let boton = [...contenedor.querySelectorAll('button')].find(
+    b => b.textContent.toLowerCase().trim() === valorNormalizado
+  );
+
+  if (!boton) {
+    // Crear botón si no existe
+    boton = document.createElement('button');
+    boton.classList.add('btn');
+    boton.textContent = valor;
+
+    // Estilo por tipo (color opcional)
+    if (grupo === 'color') boton.style.backgroundColor = valor;
+    if (grupo === 'modelo') boton.classList.add('modelo-dinamico');
+
+    contenedor.appendChild(boton);
+
+    // Asignar evento por si se quiere cambiar después
+    boton.addEventListener('click', () => {
+      [...contenedor.querySelectorAll('button')].forEach(b => b.classList.remove('activo'));
       boton.classList.add('activo');
-    } else {
-      boton.classList.remove('activo');
-    }
-  });
+      inputOculto.value = valor;
+    });
+  }
+
+  // Activar botón
+  [...contenedor.querySelectorAll('button')].forEach(b => b.classList.remove('activo'));
+  boton.classList.add('activo');
+  inputOculto.value = valor;
 }
+
+function capitalizar(texto) {
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
+}
+
 
 
 });

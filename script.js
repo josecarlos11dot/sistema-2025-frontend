@@ -627,7 +627,8 @@ document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
   mostrarRegistrosDelServidor();
 });
 function seleccionarBoton(grupo, valor) {
-  const contenedor = document.getElementById(grupo + 's');
+  const idContenedor = (grupo === 'color') ? 'colores' : grupo + 's';
+  const contenedor = document.getElementById(idContenedor);
   const inputOculto = document.getElementById('input' + capitalizar(grupo));
   const valorNormalizado = valor.toLowerCase().trim();
 
@@ -641,7 +642,7 @@ function seleccionarBoton(grupo, valor) {
     b => b.textContent.toLowerCase().trim() === valorNormalizado
   );
 
-  if (!boton) {
+  if (!boton) {s
     // Crear botón si no existe
     boton = document.createElement('button');
     boton.classList.add('btn');

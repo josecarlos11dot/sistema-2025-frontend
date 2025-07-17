@@ -506,6 +506,26 @@ document.addEventListener('click', (e) => {
     sugerenciasPlaca.innerHTML = '';
   }
 });
+inputPlaca.addEventListener('change', () => {
+  const placa = inputPlaca.value.toLowerCase().trim();
+
+  fetch('placas.json')
+    .then(response => response.json())
+    .then(data => {
+      const encontrado = data.find(auto => auto.placa === placa);
+      if (encontrado) {
+        seleccionarBoton('marca', encontrado.marca);
+        seleccionarBoton('modelo', encontrado.modelo);
+        seleccionarBoton('color', encontrado.color);
+        console.log('Asociación encontrada:', encontrado);
+      } else {
+        console.log('Placa no encontrada en base');
+      }
+    })
+    .catch(error => {
+      console.error('Error al cargar placas.json:', error);
+    });
+});
 
 
 // === ABRIR Y CERRAR PANELES ===
@@ -602,6 +622,17 @@ document.getElementById('btnLimpiarFiltros').addEventListener('click', () => {
 
   mostrarRegistrosDelServidor();
 });
+function seleccionarBoton(grupo, valor) {
+  const botones = document.querySelectorAll(`.${grupo} button`);
+  botones.forEach(boton => {
+    if (boton.textContent.trim().toUpperCase() === valor.toUpperCase()) {
+      boton.classList.add('activo');
+    } else {
+      boton.classList.remove('activo');
+    }
+  });
+}
+
 
 });
 

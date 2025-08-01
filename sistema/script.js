@@ -729,7 +729,18 @@ cargarTodoDesdeStorage();
   
       abrirFormulario();
     });
+
   }
+  function confirmarPlaca() {
+    const placa = document.getElementById("resultadoPlaca").value.trim().toUpperCase();
+    if (placa) {
+      localStorage.setItem("placaDetectadaOCR", placa);
+      window.location.href = "/sistema";
+    } else {
+      alert("Primero escribe o detecta una placa.");
+    }
+  }
+  
   
   
   

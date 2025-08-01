@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  
   // ==================================================
   // 📦 1. ELEMENTOS DOM Y VARIABLES GLOBALES
   // ==================================================
@@ -741,6 +742,7 @@ cargarTodoDesdeStorage();
     }
   }
   
+
   
   
   

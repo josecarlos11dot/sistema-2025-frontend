@@ -46,7 +46,12 @@
   <button id="btnCapturar">📸 Capturar</button>
 
   <p id="estadoOCR">Esperando captura...</p>
-  <input type="text" id="resultadoPlaca" placeholder="Placa detectada..." />
+  <div style="margin-top: 20px; display: flex; flex-direction: column; align-items: center;">
+    <input type="text" id="resultadoPlaca" placeholder="Placa detectada..." style="margin-bottom: 10px;" />
+    <button onclick="confirmarPlaca()">✅ Confirmar placa</button>
+  </div>
+  
+
 
   <canvas id="canvas" style="display:none;"></canvas>
   <script>

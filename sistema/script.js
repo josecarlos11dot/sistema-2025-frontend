@@ -681,10 +681,56 @@ cargarTodoDesdeStorage();
       .catch(err => console.error('Error al cargar registros:', err));
   }
   
-  // ✅ Mostrar solo registros del día al iniciar
-  mostrarRegistrosDelServidor();
+
+    // ✅ Mostrar solo registros del día al iniciar
+    mostrarRegistrosDelServidor();
   
-  }); // Fin de DOMContentLoaded
+    // ✅ Leer placa enviada desde OCR
+    const placaOCR = localStorage.getItem('placaDetectadaOCR');
+    if (placaOCR) {
+      agregarPlacaPendiente(placaOCR);
+      localStorage.removeItem('placaDetectadaOCR');
+    }
+  
+  }); // ← Aquí se cierra correctamente el DOMContentLoaded
+  
+  // 🧩 Función global (fuera del DOMContentLoaded)
+  function agregarPlacaPendiente(placaDetectada) {
+    let contenedor = document.getElementById('pendientesRegistro');
+    if (!contenedor) {
+      contenedor = document.createElement('div');
+      contenedor.id = "pendientesRegistro";
+      contenedor.innerHTML = `<h3>🚗 Pendientes por registrar</h3>`;
+      document.querySelector(".contenido-principal").prepend(contenedor);
+    }
+  
+    const tarjeta = document.createElement('div');
+    tarjeta.classList.add('grupo');
+    tarjeta.innerHTML = `
+      <strong>${placaDetectada.toUpperCase()}</strong><br>
+      <small>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small><br>
+      <button class="btn-primario" data-placa="${placaDetectada}">Registrar</button>
+    `;
+    contenedor.appendChild(tarjeta);
+  
+    tarjeta.querySelector('button').addEventListener('click', () => {
+      inputPlaca.value = placaDetectada.toUpperCase();
+  
+      fetch('placas.json')
+        .then(res => res.json())
+        .then(data => {
+          const encontrado = data.find(p => p.placa.toLowerCase() === placaDetectada.toLowerCase());
+          if (encontrado) {
+            seleccionarBoton('marca', encontrado.marca);
+            seleccionarBoton('modelo', encontrado.modelo);
+            seleccionarBoton('color', encontrado.color);
+          }
+        });
+  
+      abrirFormulario();
+    });
+  }
+  
   
   
   

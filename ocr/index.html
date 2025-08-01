@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Captura OCR desde cámara en vivo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 1rem; background: #111; color: #fff; text-align: center; }
+    video, canvas { width: 100%; max-width: 480px; border: 2px solid #ccc; border-radius: 10px; }
+    #guia {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 250px;
+      height: 80px;
+      transform: translate(-50%, -50%);
+      border: 2px dashed red;
+      box-sizing: border-box;
+      pointer-events: none;
+    }
+    #contenedorCamara {
+      position: relative;
+      display: inline-block;
+    }
+    #estadoOCR { margin: 1rem 0; font-weight: bold; }
+    button {
+      padding: 10px 20px;
+      font-size: 1rem;
+      margin-top: 1rem;
+      border-radius: 8px;
+      border: none;
+      background-color: #00c853;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Captura de Placa (Cámara en Vivo)</h2>
+
+  <div id="contenedorCamara">
+    <video id="video" autoplay muted playsinline></video>
+    <div id="guia"></div>
+  </div>
+
+  <button id="btnCapturar">📸 Capturar</button>
+
+  <p id="estadoOCR">Esperando captura...</p>
+  <input type="text" id="resultadoPlaca" placeholder="Placa detectada..." />
+
+  <canvas id="canvas" style="display:none;"></canvas>
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const estadoOCR = document.getElementById('estadoOCR');
+    const inputPlaca = document.getElementById('resultadoPlaca');
+    const btnCapturar = document.getElementById('btnCapturar');
+    const ctx = canvas.getContext('2d');
+  
+    const API_TOKEN = '3f8ef072e79205794e226ac4c63907d1b081c500';
+
+    function agregarPlacaPendiente(placaDetectada) {
+  let contenedor = document.getElementById('pendientesRegistro');
+
+  if (!contenedor) {
+    contenedor = document.createElement('div');
+    contenedor.id = "pendientesRegistro";
+    contenedor.innerHTML = `<h3 style="margin-top:2rem">🚗 Pendientes por registrar</h3>`;
+    document.body.appendChild(contenedor);
+  }
+
+  const tarjeta = document.createElement('div');
+  tarjeta.style.border = '1px solid #ccc';
+  tarjeta.style.padding = '1rem';
+  tarjeta.style.margin = '1rem auto';
+  tarjeta.style.maxWidth = '400px';
+  tarjeta.style.borderRadius = '10px';
+  tarjeta.style.backgroundColor = '#222';
+  tarjeta.innerHTML = `
+    <strong>${placaDetectada}</strong><br>
+    <small>${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</small><br>
+    <button onclick="enviarPlacaAlSistema('${placaDetectada}')" style="margin-top:10px;">Registrar</button>
+  `;
+
+  contenedor.appendChild(tarjeta);
+}
+
+function enviarPlacaAlSistema(placa) {
+  localStorage.setItem('placaDetectadaOCR', placa);
+  window.location.href = '/sistema';
+ 
+}
+
+
+  
+    // === 1. Activar cámara ===
+    async function iniciarCamara() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: 'environment' },
+          audio: false
+        });
+        video.srcObject = stream;
+      } catch (err) {
+        console.error('No se pudo acceder a la cámara:', err);
+        estadoOCR.textContent = 'Error al acceder a la cámara ❌';
+      }
+    }
+  
+    iniciarCamara();
+  
+    // === 2. Capturar imagen al hacer clic ===
+    btnCapturar.addEventListener('click', async () => {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+  
+      estadoOCR.textContent = 'Procesando imagen...';
+  
+      canvas.toBlob(async (blob) => {
+        const formData = new FormData();
+        formData.append('upload', blob, 'captura.jpg');
+        formData.append('regions', 'mx');
+        formData.append('detection_detail', 'true');
+        formData.append('camera_id', 'camara-viva');
+        formData.append('config', JSON.stringify({
+          blur: true,
+          vehicle_detection: true,
+          multiple_plates: false,
+          country: 'mx',
+          detect_region: true
+        }));
+  
+        try {
+          const res = await fetch('https://api.platerecognizer.com/v1/plate-reader/', {
+            method: 'POST',
+            headers: {
+              Authorization: `Token ${API_TOKEN}`
+            },
+            body: formData
+          });
+  
+          const data = await res.json();
+          console.log('Respuesta completa:', data);
+  
+          const resultado = data.results?.[0];
+  
+          if (resultado) {
+            const placa = resultado.plate.toUpperCase();
+            inputPlaca.value = placa;
+  
+            const score = resultado.score;
+            if (score < 0.85) {
+              estadoOCR.textContent = `Duda en lectura ⚠️ (${placa})`;
+            } else {
+              estadoOCR.textContent = 'Placa detectada ✅';
+            }
+  
+          } else {
+            estadoOCR.textContent = 'No se detectó placa ❌';
+            inputPlaca.value = '';
+          }
+  
+        } catch (err) {
+          console.error('Error al enviar a Plate Recognizer:', err);
+          estadoOCR.textContent = 'Error al procesar imagen ❌';
+        }
+  
+      }, 'image/jpeg', 0.9);
+    });
+  </script>
+  
+</body>
+</html>

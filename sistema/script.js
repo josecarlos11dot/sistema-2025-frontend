@@ -730,8 +730,8 @@ cargarTodoDesdeStorage();
   
       abrirFormulario();
     });
-
-  }
+  } // ← ESTA LLAVE FALTABA ❗
+  
   function confirmarPlaca() {
     const placa = document.getElementById("resultadoPlaca").value.trim().toUpperCase();
     if (placa) {
@@ -741,25 +741,4 @@ cargarTodoDesdeStorage();
       alert("Primero escribe o detecta una placa.");
     }
   }
-  // ✅ FUNCIÓN GLOBAL
-function confirmarPlaca() {
-  const placa = document.getElementById("resultadoPlaca").value.trim().toUpperCase();
-  if (placa) {
-    localStorage.setItem("placaDetectadaOCR", placa);
-    window.location.href = "/sistema";
-  } else {
-    alert("Primero escribe o detecta una placa.");
-  }
-}
-
-// 🔄 Y luego todo tu código que esté dentro del DOMContentLoaded
-document.addEventListener('DOMContentLoaded', () => {
-  // ...
-  // lo demás que ya tienes
-});
-
-
-  
-  
-  
   
